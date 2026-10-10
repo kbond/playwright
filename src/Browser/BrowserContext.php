@@ -124,7 +124,13 @@ final class BrowserContext implements BrowserContextInterface, EventDispatcherIn
             );
             foreach ($this->routeHandlers as $handler) {
                 if (fnmatch($handler['url'], $route->request()->url())) {
-                    $handler['handler']($route);
+                    try {
+                        $handler['handler']($route);
+                    } catch (\Throwable $e) {
+                        $route->abortUnlessHandled();
+
+                        throw $e;
+                    }
 
                     return;
                 }
